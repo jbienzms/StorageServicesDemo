@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity3dAzure.StorageServices;
@@ -25,7 +25,13 @@ public class AssetBundleDemo : MonoBehaviour
 
 	[Header ("Asset Bundle Demo")]
 	public Text label;
-	public string assetBundleName = "cloud";
+
+	[Tooltip("Name of the asset bundle stored as a block blob in the container")]
+	public string assetBundleName = "cloudbundle";
+
+	[Tooltip("Name of a GameObject prefab in the bundle to instantiate")]
+	public string assetObjectName = "CloudGO";
+
 	private AssetBundle assetBundle;
 	private GameObject loadedObject;
 
@@ -66,8 +72,8 @@ public class AssetBundleDemo : MonoBehaviour
 	public void TappedLoadAssetBundle ()
 	{
 		UnloadAssetBundle ();
-		string filename = assetBundleName + "-" + GetAssetBundlePlatformName () + ".unity3d";
-		string url = Path.Combine (client.SecondaryEndpoint () + container, filename);
+		string filename = assetBundleName + "-" + GetAssetBundlePlatformName() + ".unity3d";
+		string url = client.SecondaryEndpoint () + container + "/" + filename;
 		Log.Text (label, "Load asset bundle: " + url, "Load asset bundle: " + url);
 		StartCoroutine (LoadAssetBundleURL (url));
 	}
@@ -82,7 +88,7 @@ public class AssetBundleDemo : MonoBehaviour
 		} else {
 			assetBundle = ((DownloadHandlerAssetBundle)www.downloadHandler).assetBundle;
 			Log.Text (label, "Load url: " + url, "Load url: " + url);
-			StartCoroutine (LoadAssets (assetBundle, "CloudCube"));
+			StartCoroutine (LoadAssets (assetBundle, assetObjectName));
 		}
 	}
 
@@ -138,23 +144,24 @@ public class AssetBundleDemo : MonoBehaviour
 
 	private string GetAssetBundlePlatformName ()
 	{
-		switch (Application.platform) {
-		case RuntimePlatform.WindowsEditor:
-		case RuntimePlatform.WindowsPlayer:
-			return SystemInfo.operatingSystem.Contains ("64 bit") ? "x64" : "x86";
-		case RuntimePlatform.WSAPlayerX86:
-		case RuntimePlatform.WSAPlayerX64:
-		case RuntimePlatform.WSAPlayerARM:
-			return "WSA";
-		case RuntimePlatform.Android:
-			return "Android";
-		case RuntimePlatform.IPhonePlayer:
-			return "iOS";
-		case RuntimePlatform.OSXEditor:
-		case RuntimePlatform.OSXPlayer:
-			return "OSX";
-		default:
-			throw new Exception ("Platform not listed");
+		switch (Application.platform)
+		{
+			case RuntimePlatform.WindowsEditor:
+			case RuntimePlatform.WindowsPlayer:
+				return SystemInfo.operatingSystem.Contains("64 bit") ? "x64" : "x86";
+			case RuntimePlatform.WSAPlayerX86:
+			case RuntimePlatform.WSAPlayerX64:
+			case RuntimePlatform.WSAPlayerARM:
+				return "WSA";
+			case RuntimePlatform.Android:
+				return "Android";
+			case RuntimePlatform.IPhonePlayer:
+				return "iOS";
+			case RuntimePlatform.OSXEditor:
+			case RuntimePlatform.OSXPlayer:
+				return "OSX";
+			default:
+				throw new Exception("Platform not listed");
 		}
 	}
 
